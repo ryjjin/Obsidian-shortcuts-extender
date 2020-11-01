@@ -1,7 +1,7 @@
 {
   "id": "shortcuts-extender",
   "name": "Shortcuts extender",
-  "description": "Use shortcuts for changing level of headings and input special symbols without language switching",
+  "description": "Use shortcuts for input special symbols without language switching",
   "isDesktopOnly": false,
   "js": "main.js",
   "version": "1.0.0"

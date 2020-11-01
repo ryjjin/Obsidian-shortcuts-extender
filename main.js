@@ -85,7 +85,7 @@ var shortcutsExtender = /** @class */ (function (_super) {
                     callback: function () { return _this.shortcutsExtender(); },
                     hotkeys: [
                         {
-                            modifiers: ["Mod"],
+                            modifiers: ["Alt"],
                             key: "3",
                         },
                     ],
@@ -97,7 +97,7 @@ var shortcutsExtender = /** @class */ (function (_super) {
                     callback: function () { return _this.shortcutLessThan(); },
                     hotkeys: [
                         {
-                            modifiers: ["Mod", "Shift"],
+                            modifiers: ["Alt", "Shift"],
                             key: "б",
                         },
                     ],
@@ -109,7 +109,7 @@ var shortcutsExtender = /** @class */ (function (_super) {
                     callback: function () { return _this.shortcutGreaterThan(); },
                     hotkeys: [
                         {
-                            modifiers: ["Mod", "Shift"],
+                            modifiers: ["Alt", "Shift"],
                             key: "ю",
                         },
                     ],
@@ -121,7 +121,7 @@ var shortcutsExtender = /** @class */ (function (_super) {
                     callback: function () { return _this.shortcutLeftSquareBracket(); },
                     hotkeys: [
                         {
-                            modifiers: ["Mod", "Shift"],
+                            modifiers: ["Alt"],
                             key: "х",
                         },
                     ],
@@ -133,7 +133,7 @@ var shortcutsExtender = /** @class */ (function (_super) {
                     callback: function () { return _this.shortcutRightSquareBracket(); },
                     hotkeys: [
                         {
-                            modifiers: ["Mod", "Shift"],
+                            modifiers: ["Alt"],
                             key: "ъ",
                         },
                     ],
@@ -159,7 +159,9 @@ var shortcutsExtender = /** @class */ (function (_super) {
         var selectedText = editor.somethingSelected()
             ? editor.getSelection()
             : false;
-        editor.replaceSelection("<");
+        if (selectedText) {
+            editor.replaceSelection("<" + selectedText + ">");
+        } else editor.replaceSelection("<");
     };
 
     shortcutsExtender.prototype.shortcutGreaterThan = function () {
