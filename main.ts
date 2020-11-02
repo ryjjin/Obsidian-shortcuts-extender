@@ -1,17 +1,9 @@
-import {
-  App,
-  Modal,
-  Notice,
-  Plugin,
-  PluginSettingTab,
-  Setting,
-} from "obsidian";
+import { Plugin } from "obsidian";
+import { clipboard } from "electron";
 
 export default class shortcutsExtender extends Plugin {
-  onInit() {}
-
-  onload() {
-    console.log("Loading Hotkeys++ plugin");
+  async onload() {
+    console.log(this.app);
 
     this.addCommand({
       id: "shortcut-hash",
@@ -72,49 +64,47 @@ export default class shortcutsExtender extends Plugin {
         },
       ],
     });
-
+  }
 
   shortcutHash(): void {
-      let activeLeaf: any = this.app.workspace.activeLeaf;
-      let editor = activeLeaf.view.sourceMode.cmEditor;
-      let selectedText = editor.somethingSelected()
-        ? editor.getSelection()
-        : false;
-      if (selectedText) {
-        editor.replaceSelection(`## ${selectedText}`);
-      }; editor.replaceSelection(`#`);
-    }
+    let activeLeaf: any = this.app.workspace.activeLeaf;
+    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let selectedText = editor.somethingSelected()
+      ? editor.getSelection()
+      : false;
+    editor.replaceSelection(`#`);
+  }
 
   shortcutLessThan(): void {
-      let activeLeaf: any = this.app.workspace.activeLeaf;
-      let editor = activeLeaf.view.sourceMode.cmEditor;
-      let selectedText = editor.somethingSelected()
-        ? editor.getSelection()
-        : false;
-      if (selectedText) {
-        editor.replaceSelection(`<${selectedText}>`);
-      }; editor.replaceSelection(`<`);
-    }
+    let activeLeaf: any = this.app.workspace.activeLeaf;
+    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let selectedText = editor.somethingSelected()
+      ? editor.getSelection()
+      : false;
+    if (selectedText) {
+      editor.replaceSelection(`<${selectedText}>`);
+    } else editor.replaceSelection(`<`);
+  }
 
   shortcutGreaterThan(): void {
-      let activeLeaf: any = this.app.workspace.activeLeaf;
-      let editor = activeLeaf.view.sourceMode.cmEditor;
-      let selectedText = editor.somethingSelected()
-        ? editor.getSelection()
-        : false;
-      editor.replaceSelection(`>`);
-    }
+    let activeLeaf: any = this.app.workspace.activeLeaf;
+    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let selectedText = editor.somethingSelected()
+      ? editor.getSelection()
+      : false;
+    editor.replaceSelection(`>`);
+  }
 
-    shortcutLeftSquareBracket(): void {
-      let activeLeaf: any = this.app.workspace.activeLeaf;
-      let editor = activeLeaf.view.sourceMode.cmEditor;
-      let selectedText = editor.somethingSelected()
-        ? editor.getSelection()
-        : false;
-      if (selectedText) {
-        editor.replaceSelection(`[[${selectedText}]]`);
-      }; else editor.replaceSelection(`[`);
-    }
+  shortcutLeftSquareBracket(): void {
+    let activeLeaf: any = this.app.workspace.activeLeaf;
+    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let selectedText = editor.somethingSelected()
+      ? editor.getSelection()
+      : false;
+    if (selectedText) {
+      editor.replaceSelection(`[[${selectedText}]]`);
+    } else editor.replaceSelection(`[`);
+  }
 
   shortcutRightSquareBracket(): void {
     let activeLeaf: any = this.app.workspace.activeLeaf;
@@ -123,7 +113,6 @@ export default class shortcutsExtender extends Plugin {
       ? editor.getSelection()
       : false;
     editor.replaceSelection(`]`);
-    }
-
   }
+
 }
