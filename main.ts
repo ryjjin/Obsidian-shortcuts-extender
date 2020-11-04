@@ -64,6 +64,31 @@ export default class shortcutsExtender extends Plugin {
         },
       ],
     });
+
+    this.addCommand({
+      id: "shortcut-python-code",
+      name: "Shortcut for .py code fences",
+      callback: () => this.shortcutPyCode(),
+      hotkeys: [
+        {
+          modifiers: ["Alt", "Shift"],
+          key: "ё",
+        },
+      ],
+    });
+
+    this.addCommand({
+      id: "shortcut-code",
+      name: "Shortcut for code fences",
+      callback: () => this.shortcutCodeFences(),
+      hotkeys: [
+        {
+          modifiers: ["Alt"],
+          key: "ё",
+        },
+      ],
+    });
+
   }
 
   shortcutHash(): void {
@@ -113,6 +138,28 @@ export default class shortcutsExtender extends Plugin {
       ? editor.getSelection()
       : false;
     editor.replaceSelection(`]`);
+  }
+
+  shortcutPyCode(): void {
+    let activeLeaf: any = this.app.workspace.activeLeaf;
+    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let selectedText = editor.somethingSelected()
+      ? editor.getSelection()
+      : false;
+    if (selectedText) {
+      editor.replaceSelection(`\`\`\`py\n${selectedText}\n\`\`\``);
+    } else editor.replaceSelection(`\``);
+  }
+
+  shortcutCodeFences(): void {
+    let activeLeaf: any = this.app.workspace.activeLeaf;
+    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let selectedText = editor.somethingSelected()
+      ? editor.getSelection()
+      : false;
+    if (selectedText) {
+      editor.replaceSelection(`\`${selectedText}\``);
+    } else editor.replaceSelection(`\``);
   }
 
 }
