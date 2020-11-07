@@ -23,8 +23,12 @@ export default class shortcutsExtender extends Plugin {
       callback: () => this.shortcutLessThan(),
       hotkeys: [
         {
-          modifiers: ["Alt", "Shift"],
+          modifiers: ["Alt"],
           key: "б",
+        },
+        {
+          modifiers: ["Alt"],
+          key: "<",
         },
       ],
     });
@@ -38,6 +42,10 @@ export default class shortcutsExtender extends Plugin {
           modifiers: ["Alt", "Shift"],
           key: "ю",
         },
+        {
+          modifiers: ["Alt", "Shift"],
+          key: ">",
+        },
       ],
     });
 
@@ -49,6 +57,10 @@ export default class shortcutsExtender extends Plugin {
         {
           modifiers: ["Alt"],
           key: "х",
+        },
+        {
+          modifiers: ["Alt"],
+          key: "[",
         },
       ],
     });
@@ -62,6 +74,10 @@ export default class shortcutsExtender extends Plugin {
           modifiers: ["Alt"],
           key: "ъ",
         },
+        {
+          modifiers: ["Alt"],
+          key: "]",
+        },
       ],
     });
 
@@ -74,17 +90,85 @@ export default class shortcutsExtender extends Plugin {
           modifiers: ["Alt", "Shift"],
           key: "ё",
         },
+        {
+          modifiers: ["Alt", "Shift"],
+          key: "`",
+        },
       ],
     });
 
     this.addCommand({
       id: "shortcut-code",
-      name: "Shortcut for code fences",
+      name: "Shortcut for code fences (`)",
       callback: () => this.shortcutCodeFences(),
       hotkeys: [
         {
           modifiers: ["Alt"],
           key: "ё",
+        },
+        {
+          modifiers: ["Alt"],
+          key: "`",
+        },
+      ],
+    });
+
+    this.addCommand({
+      id: "shortcut-circumflex",
+      name: "Shortcut for ^ symbol",
+      callback: () => this.shortcutCircumflex (),
+      hotkeys: [
+        {
+          modifiers: ["Alt"],
+          key: "6",
+        },
+      ],
+    });
+
+    this.addCommand({
+      id: "shortcut-left-curly-bracket",
+      name: "Shortcut for { symbol",
+      callback: () => this.shortcutLeftCurlyBracket (),
+      hotkeys: [
+        {
+          modifiers: ["Alt", "Shift"],
+          key: "х",
+        },
+        {
+          modifiers: ["Alt", "Shift"],
+          key: "{",
+        },
+      ],
+    });
+
+    this.addCommand({
+      id: "shortcut-right-curly-bracket",
+      name: "Shortcut for } symbol",
+      callback: () => this.shortcutRightCurlyBracket (),
+      hotkeys: [
+        {
+          modifiers: ["Alt", "Shift"],
+          key: "ъ",
+        },
+        {
+          modifiers: ["Alt", "Shift"],
+          key: "}",
+        },
+      ],
+    });
+
+    this.addCommand({
+      id: "shortcut-tilda",
+      name: "Shortcut for ~ symbol",
+      callback: () => this.shortcutTilda (),
+      hotkeys: [
+        {
+          modifiers: ["Alt", "Shift"],
+          key: "ё",
+        },
+        {
+          modifiers: ["Alt", "Shift"],
+          key: "~",
         },
       ],
     });
@@ -117,7 +201,11 @@ export default class shortcutsExtender extends Plugin {
     let selectedText = editor.somethingSelected()
       ? editor.getSelection()
       : false;
-    editor.replaceSelection(`>`);
+    let resultText = "";
+    if (selectedText) {
+      resultText = selectedText.split('\n').join("\n> ");
+    }
+    editor.replaceSelection(`> ${resultText}`);
   }
 
   shortcutLeftSquareBracket(): void {
@@ -162,4 +250,40 @@ export default class shortcutsExtender extends Plugin {
     } else editor.replaceSelection(`\``);
   }
 
-}
+  shortcutCircumflex(): void {
+    let activeLeaf: any = this.app.workspace.activeLeaf;
+    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let selectedText = editor.somethingSelected()
+      ? editor.getSelection()
+      : false;
+    editor.replaceSelection(`^`);
+  }
+
+  shortcutRightCurlyBracket(): void {
+    let activeLeaf: any = this.app.workspace.activeLeaf;
+    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let selectedText = editor.somethingSelected()
+      ? editor.getSelection()
+      : false;
+    editor.replaceSelection(`}`);
+  }
+
+  shortcutLeftCurlyBracket(): void {
+    let activeLeaf: any = this.app.workspace.activeLeaf;
+    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let selectedText = editor.somethingSelected()
+      ? editor.getSelection()
+      : false;
+    if (selectedText) {
+      editor.replaceSelection(`\{${selectedText}\}`);
+    } else editor.replaceSelection(`\{`);
+  }
+
+  shortcutTilda(): void {
+    let activeLeaf: any = this.app.workspace.activeLeaf;
+    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let selectedText = editor.somethingSelected()
+      ? editor.getSelection()
+      : false;
+    editor.replaceSelection(`~`);
+  }
