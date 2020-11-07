@@ -28,7 +28,7 @@ export default class shortcutsExtender extends Plugin {
         },
         {
           modifiers: ["Alt"],
-          key: "<",
+          key: ",",
         },
       ],
     });
@@ -39,12 +39,12 @@ export default class shortcutsExtender extends Plugin {
       callback: () => this.shortcutGreaterThan(),
       hotkeys: [
         {
-          modifiers: ["Alt", "Shift"],
+          modifiers: ["Alt"],
           key: "ю",
         },
         {
-          modifiers: ["Alt", "Shift"],
-          key: ">",
+          modifiers: ["Alt"],
+          key: ".",
         },
       ],
     });
@@ -92,7 +92,7 @@ export default class shortcutsExtender extends Plugin {
         },
         {
           modifiers: ["Alt", "Shift"],
-          key: "`",
+          key: "~",
         },
       ],
     });
@@ -153,22 +153,6 @@ export default class shortcutsExtender extends Plugin {
         {
           modifiers: ["Alt", "Shift"],
           key: "}",
-        },
-      ],
-    });
-
-    this.addCommand({
-      id: "shortcut-tilda",
-      name: "Shortcut for ~ symbol",
-      callback: () => this.shortcutTilda (),
-      hotkeys: [
-        {
-          modifiers: ["Alt", "Shift"],
-          key: "ё",
-        },
-        {
-          modifiers: ["Alt", "Shift"],
-          key: "~",
         },
       ],
     });
@@ -278,12 +262,4 @@ export default class shortcutsExtender extends Plugin {
       editor.replaceSelection(`\{${selectedText}\}`);
     } else editor.replaceSelection(`\{`);
   }
-
-  shortcutTilda(): void {
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
-    let selectedText = editor.somethingSelected()
-      ? editor.getSelection()
-      : false;
-    editor.replaceSelection(`~`);
-  }
+}
