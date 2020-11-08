@@ -6,7 +6,7 @@ So far, the following keyboard shortcuts have been assigned:
 - `Alt` + `6` for input ^
 - `Alt` + cyrillic `х` or `ъ` (or EN "[" and "]") for input []
 - `Alt` + `Shift` + cyrillic `х` or `ъ` (or EN "{" and "}") for input {}
-- `Alt` + cyrillic `б` or "ю" (or EN "," and ".") for input <> 
+- `Alt` + cyrillic `б` or `ю` (or EN "," and ".") for input <> 
 - `Alt` + cyrillic `ё` for input code fences
 - `Alt` + `Shift` + cyrillic `ё` (or EN "~") for input code fences for python code
 
