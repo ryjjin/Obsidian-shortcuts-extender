@@ -157,6 +157,22 @@ export default class shortcutsExtender extends Plugin {
       ],
     });
 
+    this.addCommand({
+      id: "shortcut-Vertical-Line",
+      name: "Shortcut for | symbol",
+      callback: () => this.shortcutVerticalLine (),
+      hotkeys: [
+        {
+          modifiers: ["Alt", "Shift"],
+          key: "|",
+        },
+        {
+          modifiers: ["Alt", "Shift"],
+          key: "\/",
+        },
+      ],
+    });
+
   }
 
   shortcutHash(): void {
@@ -261,5 +277,14 @@ export default class shortcutsExtender extends Plugin {
     if (selectedText) {
       editor.replaceSelection(`\{${selectedText}\}`);
     } else editor.replaceSelection(`\{`);
+  }
+
+  shortcutVerticalLine(): void {
+    let activeLeaf: any = this.app.workspace.activeLeaf;
+    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let selectedText = editor.somethingSelected()
+      ? editor.getSelection()
+      : false;
+    editor.replaceSelection(`|`);
   }
 }

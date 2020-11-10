@@ -4,5 +4,5 @@
   "description": "Use shortcuts for input special symbols without language switching",
   "isDesktopOnly": false,
   "js": "main.js",
-  "version": "1.0.2"
+  "version": "1.0.3"
 }
