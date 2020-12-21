@@ -1,6 +1,6 @@
 {
   "name": "shortcuts-extender",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "description": "Use shortcuts for input special symbols without language switching",
   "main": "main.js",
   "scripts": {

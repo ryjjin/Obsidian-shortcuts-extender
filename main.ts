@@ -6,6 +6,30 @@ export default class shortcutsExtender extends Plugin {
     console.log(this.app);
 
     this.addCommand({
+      id: "shortcut-exclamation-mark",
+      name: "Shortcut for ! symbol",
+      callback: () => this.shortcutExclamationMark(),
+      hotkeys: [
+        {
+          modifiers: ["Alt"],
+          key: "1",
+        },
+      ],
+    });
+
+    this.addCommand({
+      id: "shortcut-At",
+      name: "Shortcut for @ symbol",
+      callback: () => this.shortcutAt(),
+      hotkeys: [
+        {
+          modifiers: ["Alt"],
+          key: "2",
+        },
+      ],
+    });
+
+    this.addCommand({
       id: "shortcut-hash",
       name: "Shortcut for # symbol",
       callback: () => this.shortcutHash(),
@@ -13,6 +37,54 @@ export default class shortcutsExtender extends Plugin {
         {
           modifiers: ["Alt"],
           key: "3",
+        },
+      ],
+    });
+
+    this.addCommand({
+      id: "shortcut-dollar",
+      name: "Shortcut for $ symbol",
+      callback: () => this.shortcutDollar(),
+      hotkeys: [
+        {
+          modifiers: ["Alt"],
+          key: "4",
+        },
+      ],
+    });
+
+    this.addCommand({
+      id: "shortcut-percent",
+      name: "Shortcut for % symbol",
+      callback: () => this.shortcutPercent(),
+      hotkeys: [
+        {
+          modifiers: ["Alt"],
+          key: "5",
+        },
+      ],
+    });
+
+    this.addCommand({
+      id: "shortcut-circumflex",
+      name: "Shortcut for ^ symbol",
+      callback: () => this.shortcutCircumflex(),
+      hotkeys: [
+        {
+          modifiers: ["Alt"],
+          key: "6",
+        },
+      ],
+    });
+
+    this.addCommand({
+      id: "shortcut-ampersand",
+      name: "Shortcut for & symbol",
+      callback: () => this.shortcutAmpersand(),
+      hotkeys: [
+        {
+          modifiers: ["Alt"],
+          key: "7",
         },
       ],
     });
@@ -114,21 +186,9 @@ export default class shortcutsExtender extends Plugin {
     });
 
     this.addCommand({
-      id: "shortcut-circumflex",
-      name: "Shortcut for ^ symbol",
-      callback: () => this.shortcutCircumflex (),
-      hotkeys: [
-        {
-          modifiers: ["Alt"],
-          key: "6",
-        },
-      ],
-    });
-
-    this.addCommand({
       id: "shortcut-left-curly-bracket",
       name: "Shortcut for { symbol",
-      callback: () => this.shortcutLeftCurlyBracket (),
+      callback: () => this.shortcutLeftCurlyBracket(),
       hotkeys: [
         {
           modifiers: ["Alt", "Shift"],
@@ -144,7 +204,7 @@ export default class shortcutsExtender extends Plugin {
     this.addCommand({
       id: "shortcut-right-curly-bracket",
       name: "Shortcut for } symbol",
-      callback: () => this.shortcutRightCurlyBracket (),
+      callback: () => this.shortcutRightCurlyBracket(),
       hotkeys: [
         {
           modifiers: ["Alt", "Shift"],
@@ -160,7 +220,7 @@ export default class shortcutsExtender extends Plugin {
     this.addCommand({
       id: "shortcut-Vertical-Line",
       name: "Shortcut for | symbol",
-      callback: () => this.shortcutVerticalLine (),
+      callback: () => this.shortcutVerticalLine(),
       hotkeys: [
         {
           modifiers: ["Alt", "Shift"],
@@ -173,6 +233,35 @@ export default class shortcutsExtender extends Plugin {
       ],
     });
 
+  this.addCommand({
+      id: "shortcut-list-items",
+      name: "Creating list item from text",
+      callback: () => this.shortcutListItems(),
+      hotkeys: [
+        {
+          modifiers: ["Alt"],
+          key: "-",
+        },
+      ],
+    });
+  }
+
+  shortcutExclamationMark(): void {
+    let activeLeaf: any = this.app.workspace.activeLeaf;
+    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let selectedText = editor.somethingSelected()
+      ? editor.getSelection()
+      : false;
+    editor.replaceSelection(`\!`);
+  }
+
+  shortcutAt(): void {
+    let activeLeaf: any = this.app.workspace.activeLeaf;
+    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let selectedText = editor.somethingSelected()
+      ? editor.getSelection()
+      : false;
+    editor.replaceSelection(`@`);
   }
 
   shortcutHash(): void {
@@ -182,6 +271,33 @@ export default class shortcutsExtender extends Plugin {
       ? editor.getSelection()
       : false;
     editor.replaceSelection(`#`);
+  }
+
+  shortcutDollar(): void {
+    let activeLeaf: any = this.app.workspace.activeLeaf;
+    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let selectedText = editor.somethingSelected()
+      ? editor.getSelection()
+      : false;
+    editor.replaceSelection(`$`);
+  }
+
+  shortcutPercent(): void {
+    let activeLeaf: any = this.app.workspace.activeLeaf;
+    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let selectedText = editor.somethingSelected()
+      ? editor.getSelection()
+      : false;
+    editor.replaceSelection(`\%`);
+  }
+
+  shortcutAmpersand(): void {
+    let activeLeaf: any = this.app.workspace.activeLeaf;
+    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let selectedText = editor.somethingSelected()
+      ? editor.getSelection()
+      : false;
+    editor.replaceSelection(`\&`);
   }
 
   shortcutLessThan(): void {
@@ -206,6 +322,19 @@ export default class shortcutsExtender extends Plugin {
       resultText = selectedText.split('\n').join("\n> ");
     }
     editor.replaceSelection(`> ${resultText}`);
+  }
+
+  shortcutListItems(): void {
+    let activeLeaf: any = this.app.workspace.activeLeaf;
+    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let selectedText = editor.somethingSelected()
+      ? editor.getSelection()
+      : false;
+    let resultText = "";
+    if (selectedText) {
+      resultText = selectedText.split('\n').join("\n- ");
+    }
+    editor.replaceSelection(`- ${resultText}`);
   }
 
   shortcutLeftSquareBracket(): void {
