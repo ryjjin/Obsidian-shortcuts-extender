@@ -16,7 +16,7 @@ Use keyboard shortcuts to specify the heading level:
 
 ## Clearing the markup of the selected text
 
-Use `Ctrl` + `0` for clearing the markup of the selected text: only the initial characters of lines are cleared, such as markup characters for headings, numbered and unnumbered lists, quotes/
+Use `Ctrl` + `0` for clearing the markup of the selected text: only the initial characters of lines are cleared, such as markup characters for headings, numbered and unnumbered lists, quotes.
 
 You can in this way both clear the markup in the drain, where the pointer is at the current moment, and clear the markup of lines from all the selected text.
 
