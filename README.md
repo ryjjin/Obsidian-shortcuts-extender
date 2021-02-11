@@ -41,7 +41,7 @@ If you enter brackets or comparison signs or code fences, having previously sele
 
 ## Additional features
 
-If you enter code fences for python code via Alt + Shift + cyrillic "ё" - new strings will added and result will look as:
+If you enter code fences for python code via <`Alt` + `Shift` + `~`> - new strings will added and result will look as:
 
 ```py
 <your selected python code>
