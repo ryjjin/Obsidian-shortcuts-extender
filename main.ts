@@ -602,7 +602,7 @@ export default class shortcutsExtender extends Plugin {
       splittedSelectedText[j] = splittedSelectedText[j].replace(re_digits, "");
     }
 
-    editor.replaceRange(splittedSelectedText, selectedText.start, selectedText.end);
+    editor.replaceRange(splittedSelectedText.toString(), selectedText.start, selectedText.end);
   }
 
   shortcutHeader1(): void {
