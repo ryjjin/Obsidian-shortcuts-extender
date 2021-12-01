@@ -1,4 +1,4 @@
-import { Plugin } from "obsidian";
+import { MarkdownView, Plugin } from "obsidian";
 
 export default class shortcutsExtender extends Plugin {
   async onload() {
@@ -365,8 +365,10 @@ export default class shortcutsExtender extends Plugin {
   }
 
   shortcutExclamationMark(): void {
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = editor.somethingSelected()
       ? editor.getSelection()
       : false;
@@ -374,8 +376,10 @@ export default class shortcutsExtender extends Plugin {
   }
 
   shortcutAt(): void {
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = editor.somethingSelected()
       ? editor.getSelection()
       : false;
@@ -383,8 +387,10 @@ export default class shortcutsExtender extends Plugin {
   }
 
   shortcutHash(): void {
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = editor.somethingSelected()
       ? editor.getSelection()
       : false;
@@ -392,8 +398,10 @@ export default class shortcutsExtender extends Plugin {
   }
 
   shortcutDollar(): void {
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = editor.somethingSelected()
       ? editor.getSelection()
       : false;
@@ -401,8 +409,10 @@ export default class shortcutsExtender extends Plugin {
   }
 
   shortcutPercent(): void {
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = editor.somethingSelected()
       ? editor.getSelection()
       : false;
@@ -410,8 +420,10 @@ export default class shortcutsExtender extends Plugin {
   }
 
   shortcutCircumflex(): void {
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = editor.somethingSelected()
       ? editor.getSelection()
       : false;
@@ -419,8 +431,10 @@ export default class shortcutsExtender extends Plugin {
   }
 
   shortcutAmpersand(): void {
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = editor.somethingSelected()
       ? editor.getSelection()
       : false;
@@ -428,8 +442,10 @@ export default class shortcutsExtender extends Plugin {
   }
 
   shortcutLessThan(): void {
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = editor.somethingSelected()
       ? editor.getSelection()
       : false;
@@ -448,8 +464,10 @@ export default class shortcutsExtender extends Plugin {
   }
 
   shortcutLeftSquareBracket(): void {
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = editor.somethingSelected()
       ? editor.getSelection()
       : false;
@@ -459,8 +477,10 @@ export default class shortcutsExtender extends Plugin {
   }
 
   shortcutRightSquareBracket(): void {
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = editor.somethingSelected()
       ? editor.getSelection()
       : false;
@@ -468,8 +488,10 @@ export default class shortcutsExtender extends Plugin {
   }
 
   shortcutPyCode(): void {
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = editor.somethingSelected()
       ? editor.getSelection()
       : false;
@@ -479,8 +501,10 @@ export default class shortcutsExtender extends Plugin {
   }
 
   shortcutCodeFences(): void {
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = editor.somethingSelected()
       ? editor.getSelection()
       : false;
@@ -490,8 +514,10 @@ export default class shortcutsExtender extends Plugin {
   }
 
   shortcutRightCurlyBracket(): void {
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = editor.somethingSelected()
       ? editor.getSelection()
       : false;
@@ -499,8 +525,10 @@ export default class shortcutsExtender extends Plugin {
   }
 
   shortcutLeftCurlyBracket(): void {
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = editor.somethingSelected()
       ? editor.getSelection()
       : false;
@@ -510,8 +538,10 @@ export default class shortcutsExtender extends Plugin {
   }
 
   shortcutVerticalLine(): void {
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = editor.somethingSelected()
       ? editor.getSelection()
       : false;
@@ -519,8 +549,10 @@ export default class shortcutsExtender extends Plugin {
   }
 
   shortcutListItems(): void {
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = this.getSelectedText(editor);
 
     let resultText = "- " + selectedText.content.split('\n').join("\n- ");
@@ -539,8 +571,10 @@ export default class shortcutsExtender extends Plugin {
   }
 
   shortcutHeader0(): void {
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = this.getSelectedText(editor);
 
     var j;
@@ -568,13 +602,15 @@ export default class shortcutsExtender extends Plugin {
       splittedSelectedText[j] = splittedSelectedText[j].replace(re_digits, "");
     }
 
-    editor.replaceRange(splittedSelectedText, selectedText.start, selectedText.end);
+    editor.replaceRange(splittedSelectedText.toString(), selectedText.start, selectedText.end);
   }
 
   shortcutHeader1(): void {
     this.shortcutHeader0();
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = this.getSelectedText(editor);
 
     //var clearText = selectedText.content.shortcutHeader0()
@@ -584,8 +620,10 @@ export default class shortcutsExtender extends Plugin {
 
   shortcutHeader2(): void {
     this.shortcutHeader0();
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = this.getSelectedText(editor);
 
     var resultText = "## " + selectedText.content;
@@ -594,8 +632,10 @@ export default class shortcutsExtender extends Plugin {
 
   shortcutHeader3(): void {
     this.shortcutHeader0();
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = this.getSelectedText(editor);
 
     var resultText = "### " + selectedText.content;
@@ -604,8 +644,10 @@ export default class shortcutsExtender extends Plugin {
 
   shortcutHeader4(): void {
     this.shortcutHeader0();
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = this.getSelectedText(editor);
 
     var resultText = "#### " + selectedText.content;
@@ -614,8 +656,10 @@ export default class shortcutsExtender extends Plugin {
 
   shortcutHeader5(): void {
     this.shortcutHeader0();
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = this.getSelectedText(editor);
 
     var resultText = "##### " + selectedText.content;
@@ -624,8 +668,10 @@ export default class shortcutsExtender extends Plugin {
 
   shortcutHeader6(): void {
     this.shortcutHeader0();
-    let activeLeaf: any = this.app.workspace.activeLeaf;
-    let editor = activeLeaf.view.sourceMode.cmEditor;
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
     let selectedText = this.getSelectedText(editor);
 
     var resultText = "###### " + selectedText.content;
