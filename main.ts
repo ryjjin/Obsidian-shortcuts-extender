@@ -244,6 +244,18 @@ export default class shortcutsExtender extends Plugin {
       ],
     });
 
+    this.addCommand({
+      id: "heading-remove",
+      name: "remove heading from the beginning of the line",
+      callback: () => this.shortcutHeader0(),
+      hotkeys: [
+        {
+          modifiers: ["Ctrl"],
+          key: "0",
+        },
+      ],
+    });
+
   this.addCommand({
       id: "heading-1",
       name: "line into level 1 heading",
@@ -605,79 +617,51 @@ export default class shortcutsExtender extends Plugin {
     editor.replaceRange(splittedSelectedText.toString(), selectedText.start, selectedText.end);
   }
 
-  shortcutHeader1(): void {
+  shortcutHeaderN(headingLevel: number): void {
     this.shortcutHeader0();
     let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
     if (editor == null) {
       return;
     }
     let selectedText = this.getSelectedText(editor);
-
-    //var clearText = selectedText.content.shortcutHeader0()
-    var resultText = "# " + selectedText.content;
+    var cursorPos = editor.getCursor();
+    
+    var resultText = "#".repeat(headingLevel) + " " + selectedText.content;
     editor.replaceRange(resultText, selectedText.start, selectedText.end);
+
+    // Maintain the cursor's relative position on the line.
+    cursorPos.ch += headingLevel + 1;
+    editor.setCursor(cursorPos);
+  }
+
+  shortcutHeader1(): void {
+    this.shortcutHeader0();
+    this.shortcutHeaderN(1);
   }
 
   shortcutHeader2(): void {
     this.shortcutHeader0();
-    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
-    if (editor == null) {
-      return;
-    }
-    let selectedText = this.getSelectedText(editor);
-
-    var resultText = "## " + selectedText.content;
-    editor.replaceRange(resultText, selectedText.start, selectedText.end);
+    this.shortcutHeaderN(2);
   }
 
   shortcutHeader3(): void {
     this.shortcutHeader0();
-    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
-    if (editor == null) {
-      return;
-    }
-    let selectedText = this.getSelectedText(editor);
-
-    var resultText = "### " + selectedText.content;
-    editor.replaceRange(resultText, selectedText.start, selectedText.end);
+    this.shortcutHeaderN(3);
   }
 
   shortcutHeader4(): void {
     this.shortcutHeader0();
-    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
-    if (editor == null) {
-      return;
-    }
-    let selectedText = this.getSelectedText(editor);
-
-    var resultText = "#### " + selectedText.content;
-    editor.replaceRange(resultText, selectedText.start, selectedText.end);
+    this.shortcutHeaderN(4);
   }
 
   shortcutHeader5(): void {
     this.shortcutHeader0();
-    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
-    if (editor == null) {
-      return;
-    }
-    let selectedText = this.getSelectedText(editor);
-
-    var resultText = "##### " + selectedText.content;
-    editor.replaceRange(resultText, selectedText.start, selectedText.end);
+    this.shortcutHeaderN(5);
   }
 
   shortcutHeader6(): void {
     this.shortcutHeader0();
-    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
-    if (editor == null) {
-      return;
-    }
-    let selectedText = this.getSelectedText(editor);
-
-    var resultText = "###### " + selectedText.content;
-    editor.replaceRange(resultText, selectedText.start, selectedText.end);
+    this.shortcutHeaderN(6);
   }
-
-
 
 }
