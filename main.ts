@@ -244,18 +244,6 @@ export default class shortcutsExtender extends Plugin {
       ],
     });
 
-    this.addCommand({
-      id: "heading-remove",
-      name: "remove heading from the beginning of the line",
-      callback: () => this.shortcutHeader0(),
-      hotkeys: [
-        {
-          modifiers: ["Ctrl"],
-          key: "0",
-        },
-      ],
-    });
-
   this.addCommand({
       id: "heading-1",
       name: "line into level 1 heading",
