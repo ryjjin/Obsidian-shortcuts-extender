@@ -20,6 +20,10 @@ Use `Ctrl` + `0` for clearing the markup of the selected text: only the initial 
 
 You can in this way both clear the markup in the drain, where the pointer is at the current moment, and clear the markup of lines from all the selected text.
 
+## Toggling code blocks
+
+Use ``Ctrl + ` (Backtick)`` to toggle code blocks. If you select a code block, you can replace the block with just the inner code. If you select code and press ``Ctrl + ` (Backtick)``, then you can create a code block.
+
 ## Assigning shortcuts to enter special characters
 
 If you are writing notes in a language other than English, you may need to switch layouts frequently to enter special markdown markup characters. This plugin lets you assign you keyboard shortcuts for the most commonly used special characters.

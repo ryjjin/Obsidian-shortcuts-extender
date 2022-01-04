@@ -1,4 +1,5 @@
-import { editorEditorField, MarkdownView, Plugin } from "obsidian";
+import { Editor, editorEditorField, MarkdownView, Plugin } from "obsidian";
+import { start } from "repl";
 
 export default class shortcutsExtender extends Plugin {
   async onload() {
@@ -179,6 +180,18 @@ export default class shortcutsExtender extends Plugin {
         },
         {
           modifiers: ["Alt"],
+          key: "`",
+        },
+      ],
+    });
+
+    this.addCommand({
+      id: "shortcut-code-block",
+      name: "Shortcut for toggling a code block",
+      callback: () => this.shortcutToggleCodeBlock(),
+      hotkeys: [
+        {
+          modifiers: ["Ctrl"],
           key: "`",
         },
       ],
@@ -513,6 +526,38 @@ export default class shortcutsExtender extends Plugin {
     } else editor.replaceSelection(`\``);
   }
 
+  shortcutToggleCodeBlock(): void {
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
+    let selectedText = editor.somethingSelected() ? editor.getSelection() : "";
+    let startCursor = editor.getCursor('from');
+    let firstLine = editor.getLine(startCursor.line);
+    let endCursor = editor.getCursor('to');
+    let lastLine = editor.getLine(endCursor.line);
+
+    // If the selections starts with ```, then we should remove the code block.
+    let isCodeBlock = firstLine.startsWith("```") && lastLine.endsWith("```") 
+                        && selectedText.length >= 6;
+    if (isCodeBlock) {
+      // Position of first non-whitespace
+      let textStartPos = selectedText.search("\\s\\S") + 1;
+      if (textStartPos < 0) {
+        textStartPos = 3;
+      }
+
+      // Remove the code block formatting.
+      let endPos = selectedText.length - 3;
+      let innerText = selectedText.substring(textStartPos, endPos)
+      editor.replaceSelection(innerText)
+    } else {
+      editor.replaceSelection(`\`\`\`\n${selectedText}\n\`\`\``);
+      startCursor.ch = 3; // Move cursor after ```
+      editor.setCursor(startCursor);
+    }
+  }
+
   shortcutRightCurlyBracket(): void {
     let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
     if (editor == null) {
@@ -610,17 +655,25 @@ export default class shortcutsExtender extends Plugin {
     return "#".repeat(headingLevel) + space + line;
   }
 
+  getCursorDistanceFromEOL(editor: Editor): number {
+    let cursorPos = editor.getCursor();
+    let cursorLine = editor.getLine(cursorPos.line);
+    return cursorLine.length - cursorPos.ch;
+  }
+
+  setCursorDistanceFromEOL(editor: Editor, distance: number): void {
+    let cursorPos = editor.getCursor();
+    let cursorLine = editor.getLine(cursorPos.line);
+    cursorPos.ch = cursorLine.length - distance;
+    editor.setCursor(cursorPos);
+  }
+
   shortcutHeaderN(headingLevel: number): void {
     let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
     if (editor == null) {
       return;
     }
-    
-
-    // Get the distance from the end of the line.
-    let cursorPos = editor.getCursor();
-    let cursorLine = editor.getLine(cursorPos.line);
-    let distanceFromEnd = cursorLine.length - cursorPos.ch;
+    let distanceFromEnd = this.getCursorDistanceFromEOL(editor);
     
     // Update all lines in selection to the desired heading level.
     let selectedText = this.getSelectedText(editor);
@@ -633,10 +686,6 @@ export default class shortcutsExtender extends Plugin {
       editor.setLine(lineNum, line);
     }
 
-    // Set the cursor the same distance from the end of the line as before.
-    cursorPos = editor.getCursor();
-    cursorLine = editor.getLine(cursorPos.line);
-    cursorPos.ch = cursorLine.length - distanceFromEnd;
-    editor.setCursor(cursorPos);
+    this.setCursorDistanceFromEOL(editor, distanceFromEnd);
   }
 }
