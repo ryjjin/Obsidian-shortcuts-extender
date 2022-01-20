@@ -1,4 +1,5 @@
-import { MarkdownView, Plugin } from "obsidian";
+import { Editor, editorEditorField, MarkdownView, Plugin } from "obsidian";
+import { start } from "repl";
 
 export default class shortcutsExtender extends Plugin {
   async onload() {
@@ -185,6 +186,18 @@ export default class shortcutsExtender extends Plugin {
     });
 
     this.addCommand({
+      id: "shortcut-code-block",
+      name: "Shortcut for toggling a code block",
+      callback: () => this.shortcutToggleCodeBlock(),
+      hotkeys: [
+        {
+          modifiers: ["Ctrl"],
+          key: "`",
+        },
+      ],
+    });
+
+    this.addCommand({
       id: "shortcut-left-curly-bracket",
       name: "Shortcut for { symbol",
       callback: () => this.shortcutLeftCurlyBracket(),
@@ -247,7 +260,7 @@ export default class shortcutsExtender extends Plugin {
   this.addCommand({
       id: "heading-1",
       name: "line into level 1 heading",
-      callback: () => this.shortcutHeader1(),
+      callback: () => this.shortcutHeaderN(1),
       hotkeys: [
         {
           modifiers: ["Ctrl"],
@@ -259,7 +272,7 @@ export default class shortcutsExtender extends Plugin {
   this.addCommand({
       id: "heading-2",
       name: "line into level 2 heading",
-      callback: () => this.shortcutHeader2(),
+      callback: () => this.shortcutHeaderN(2),
       hotkeys: [
         {
           modifiers: ["Ctrl"],
@@ -271,7 +284,7 @@ export default class shortcutsExtender extends Plugin {
   this.addCommand({
       id: "heading-3",
       name: "line into level 3 heading",
-      callback: () => this.shortcutHeader3(),
+      callback: () => this.shortcutHeaderN(3),
       hotkeys: [
         {
           modifiers: ["Ctrl"],
@@ -283,7 +296,7 @@ export default class shortcutsExtender extends Plugin {
   this.addCommand({
       id: "heading-4",
       name: "line into level 4 heading",
-      callback: () => this.shortcutHeader4(),
+      callback: () => this.shortcutHeaderN(4),
       hotkeys: [
         {
           modifiers: ["Ctrl"],
@@ -295,7 +308,7 @@ export default class shortcutsExtender extends Plugin {
   this.addCommand({
       id: "heading-5",
       name: "line into level 5 heading",
-      callback: () => this.shortcutHeader5(),
+      callback: () => this.shortcutHeaderN(5),
       hotkeys: [
         {
           modifiers: ["Ctrl"],
@@ -307,7 +320,7 @@ export default class shortcutsExtender extends Plugin {
   this.addCommand({
       id: "heading-6",
       name: "line into level 6 heading",
-      callback: () => this.shortcutHeader6(),
+      callback: () => this.shortcutHeaderN(6),
       hotkeys: [
         {
           modifiers: ["Ctrl"],
@@ -319,7 +332,7 @@ export default class shortcutsExtender extends Plugin {
   this.addCommand({
       id: "heading-0",
       name: "clearing of text formatting",
-      callback: () => this.shortcutHeader0(),
+      callback: () => this.shortcutHeaderN(0),
       hotkeys: [
         {
           modifiers: ["Ctrl"],
@@ -333,8 +346,8 @@ export default class shortcutsExtender extends Plugin {
   //thanks to user "Argentina Ortega Sáinz" from the Obsidian community for this feature
   //For a long time I tried to do without such an approach, which resulted in several bugs and the impossibility of fixing them with non-crutches
     if (editor.somethingSelected()) {
-      let cursorStart = editor.getCursor(true);
-      let cursorEnd = editor.getCursor(false);
+      let cursorStart = editor.getCursor('from');
+      let cursorEnd = editor.getCursor('to');
       let content = editor.getRange(
         { line: cursorStart.line, ch: 0 },
         { line: cursorEnd.line, ch: editor.getLine(cursorEnd.line).length }
@@ -513,6 +526,38 @@ export default class shortcutsExtender extends Plugin {
     } else editor.replaceSelection(`\``);
   }
 
+  shortcutToggleCodeBlock(): void {
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
+    let selectedText = editor.somethingSelected() ? editor.getSelection() : "";
+    let startCursor = editor.getCursor('from');
+    let firstLine = editor.getLine(startCursor.line);
+    let endCursor = editor.getCursor('to');
+    let lastLine = editor.getLine(endCursor.line);
+
+    // If the selections starts with ```, then we should remove the code block.
+    let isCodeBlock = firstLine.startsWith("```") && lastLine.endsWith("```") 
+                        && selectedText.length >= 6;
+    if (isCodeBlock) {
+      // Position of first non-whitespace
+      let textStartPos = selectedText.search("\\s\\S") + 1;
+      if (textStartPos < 0) {
+        textStartPos = 3;
+      }
+
+      // Remove the code block formatting.
+      let endPos = selectedText.length - 3;
+      let innerText = selectedText.substring(textStartPos, endPos)
+      editor.replaceSelection(innerText)
+    } else {
+      editor.replaceSelection(`\`\`\`\n${selectedText}\n\`\`\``);
+      startCursor.ch = 3; // Move cursor after ```
+      editor.setCursor(startCursor);
+    }
+  }
+
   shortcutRightCurlyBracket(): void {
     let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
     if (editor == null) {
@@ -570,114 +615,77 @@ export default class shortcutsExtender extends Plugin {
     editor.replaceRange(resultTextCheck, selectedText.start, selectedText.end);
   }
 
-  shortcutHeader0(): void {
+  removeFormatSymbolsFromStr(line: string): string {
     let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
     if (editor == null) {
       return;
     }
-    let selectedText = this.getSelectedText(editor);
 
-    var j;
-    let splittedSelectedText = selectedText.content.split(`\n`);
-    for (j in splittedSelectedText) {
-      while (splittedSelectedText[j].substring(0,2) == "##") {
-        splittedSelectedText[j] = splittedSelectedText[j].replace("##", "#");
-      }
-      while (splittedSelectedText[j].substring(0,2) == "# ") {
-        splittedSelectedText[j] = splittedSelectedText[j].substr(2);
-      }
-      while (splittedSelectedText[j].substring(0,2) == "> ") {
-        splittedSelectedText[j] = splittedSelectedText[j].substr(2);
-      }
-      while (splittedSelectedText[j].substring(0,2) == "		") {
-        splittedSelectedText[j] = splittedSelectedText[j].replace("		", "	");
-      }
-      while (splittedSelectedText[j].substring(0,3) == "	- ") {
-        splittedSelectedText[j] = splittedSelectedText[j].substr(3);
-      }
-      while (splittedSelectedText[j].substring(0,2) == "- ") {
-        splittedSelectedText[j] = splittedSelectedText[j].substr(2);
-      }
-      var re_digits = /^\d\.\s/;
-      splittedSelectedText[j] = splittedSelectedText[j].replace(re_digits, "");
+    // Remove symbols we don't want at the beginning of the line.
+    while (line.substring(0,2) == "##") {
+      line = line.replace("##", "#");
     }
+    while (line.substring(0,2) == "# ") {
+      line = line.substr(2);
+    }
+    while (line.substring(0,2) == "> ") {
+      line = line.substr(2);
+    }
+    while (line.substring(0,2) == "		") {
+      line = line.replace("		", "	");
+    }
+    while (line.substring(0,3) == "	- ") {
+      line = line.substr(3);
+    }
+    while (line.substring(0,2) == "- ") {
+      line = line.substr(2);
+    }
+    var re_digits = /^\d\.\s/;
+    line = line.replace(re_digits, "");
 
-    editor.replaceRange(splittedSelectedText.toString(), selectedText.start, selectedText.end);
+    return line;
   }
 
-  shortcutHeader1(): void {
-    this.shortcutHeader0();
+  addHeadingToStr(line: string, headingLevel: number): string {
+    let space = " ";
+    if (headingLevel == 0) {
+      space = "";
+    }
+
+    return "#".repeat(headingLevel) + space + line;
+  }
+
+  getCursorDistanceFromEOL(editor: Editor): number {
+    let cursorPos = editor.getCursor();
+    let cursorLine = editor.getLine(cursorPos.line);
+    return cursorLine.length - cursorPos.ch;
+  }
+
+  setCursorDistanceFromEOL(editor: Editor, distance: number): void {
+    let cursorPos = editor.getCursor();
+    let cursorLine = editor.getLine(cursorPos.line);
+    cursorPos.ch = cursorLine.length - distance;
+    editor.setCursor(cursorPos);
+  }
+
+  shortcutHeaderN(headingLevel: number): void {
     let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
     if (editor == null) {
       return;
     }
+    let distanceFromEnd = this.getCursorDistanceFromEOL(editor);
+    
+    // Update all lines in selection to the desired heading level.
     let selectedText = this.getSelectedText(editor);
-
-    //var clearText = selectedText.content.shortcutHeader0()
-    var resultText = "# " + selectedText.content;
-    editor.replaceRange(resultText, selectedText.start, selectedText.end);
-  }
-
-  shortcutHeader2(): void {
-    this.shortcutHeader0();
-    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
-    if (editor == null) {
-      return;
+    let startLine = selectedText.start.line;
+    let endLine = selectedText.end.line;
+    for (let lineNum = startLine; lineNum <= endLine; lineNum++) {
+      let line = editor.getLine(lineNum);
+      line = this.removeFormatSymbolsFromStr(line);
+      line = this.addHeadingToStr(line, headingLevel);
+      editor.setLine(lineNum, line);
     }
-    let selectedText = this.getSelectedText(editor);
 
-    var resultText = "## " + selectedText.content;
-    editor.replaceRange(resultText, selectedText.start, selectedText.end);
+    this.setCursorDistanceFromEOL(editor, distanceFromEnd);
   }
-
-  shortcutHeader3(): void {
-    this.shortcutHeader0();
-    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
-    if (editor == null) {
-      return;
-    }
-    let selectedText = this.getSelectedText(editor);
-
-    var resultText = "### " + selectedText.content;
-    editor.replaceRange(resultText, selectedText.start, selectedText.end);
-  }
-
-  shortcutHeader4(): void {
-    this.shortcutHeader0();
-    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
-    if (editor == null) {
-      return;
-    }
-    let selectedText = this.getSelectedText(editor);
-
-    var resultText = "#### " + selectedText.content;
-    editor.replaceRange(resultText, selectedText.start, selectedText.end);
-  }
-
-  shortcutHeader5(): void {
-    this.shortcutHeader0();
-    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
-    if (editor == null) {
-      return;
-    }
-    let selectedText = this.getSelectedText(editor);
-
-    var resultText = "##### " + selectedText.content;
-    editor.replaceRange(resultText, selectedText.start, selectedText.end);
-  }
-
-  shortcutHeader6(): void {
-    this.shortcutHeader0();
-    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
-    if (editor == null) {
-      return;
-    }
-    let selectedText = this.getSelectedText(editor);
-
-    var resultText = "###### " + selectedText.content;
-    editor.replaceRange(resultText, selectedText.start, selectedText.end);
-  }
-
-
-
 }
