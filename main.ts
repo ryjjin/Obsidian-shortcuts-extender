@@ -1,4 +1,4 @@
-import { editorEditorField, MarkdownView, Plugin } from "obsidian";
+import { editorEditorField, MarkdownView, Plugin, EditorSelection, Editor } from "obsidian";
 
 export default class shortcutsExtender extends Plugin {
   async onload() {
@@ -329,7 +329,7 @@ export default class shortcutsExtender extends Plugin {
     });
   }
 
-  getSelectedText(editor: any) {
+  getSelectedText(editor: Editor) {
   //thanks to user "Argentina Ortega Sáinz" from the Obsidian community for this feature
   //For a long time I tried to do without such an approach, which resulted in several bugs and the impossibility of fixing them with non-crutches
     if (editor.somethingSelected()) {
@@ -615,28 +615,53 @@ export default class shortcutsExtender extends Plugin {
     if (editor == null) {
       return;
     }
-    
 
-    // Get the distance from the end of the line.
-    let cursorPos = editor.getCursor();
-    let cursorLine = editor.getLine(cursorPos.line);
-    let distanceFromEnd = cursorLine.length - cursorPos.ch;
-    
-    // Update all lines in selection to the desired heading level.
-    let selectedText = this.getSelectedText(editor);
-    let startLine = selectedText.start.line;
-    let endLine = selectedText.end.line;
-    for (let lineNum = startLine; lineNum <= endLine; lineNum++) {
+    // Apply 
+    let selections = editor.listSelections();
+    for (let i = 0; i < selections.length; i++) {
+      this.shortcutHeaderNSingleSelection(headingLevel, selections[i])
+    }
+
+    // setSelections is called to preserve the location of each cursor relative
+    // to the end of the line.
+    editor.setSelections(selections);
+  }
+
+  // shortcutHeaderNSingleSelection sets all lines in the selection to the 
+  // desired heading level. selection is also updated to maintain the cursor
+  // position relative to the end of the line.
+  shortcutHeaderNSingleSelection(headingLevel: number, selection: EditorSelection) {
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
+
+    // Save anchor/head distance from end.
+    let anchorDistFromEnd = editor.getLine(selection.anchor.line).length - selection.anchor.ch
+    let headDistFromEnd = editor.getLine(selection.head.line).length - selection.head.ch
+
+    // Get from and to line numbers.
+    let fromLine = selection.anchor.line;
+    let toLine = selection.head.line;
+    let increment = fromLine <= toLine ? 1 : -1;
+    // For each line in the selection, set the heading level.
+    let lineNum = fromLine;
+    while (true) {
+      // Update the current line.
       let line = editor.getLine(lineNum);
       line = this.removeFormatSymbolsFromStr(line);
       line = this.addHeadingToStr(line, headingLevel);
       editor.setLine(lineNum, line);
+      
+      // Move to next line if not done.
+      if (lineNum == toLine) {
+        break;
+      }
+      lineNum += increment;
     }
 
-    // Set the cursor the same distance from the end of the line as before.
-    cursorPos = editor.getCursor();
-    cursorLine = editor.getLine(cursorPos.line);
-    cursorPos.ch = cursorLine.length - distanceFromEnd;
-    editor.setCursor(cursorPos);
+    // Preserve anchor/head locations relative to line end.
+    selection.anchor.ch = editor.getLine(selection.anchor.line).length - anchorDistFromEnd;
+    selection.head.ch = editor.getLine(selection.head.line).length - headDistFromEnd;
   }
 }
