@@ -660,7 +660,7 @@ export default class shortcutsExtender extends Plugin {
       return;
     }
 
-    // Apply 
+    // Apply heading level to each line.
     let selections = editor.listSelections();
     for (let i = 0; i < selections.length; i++) {
       this.shortcutHeaderNSingleSelection(headingLevel, selections[i])
