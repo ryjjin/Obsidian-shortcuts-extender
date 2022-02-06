@@ -1,4 +1,4 @@
-import { editorEditorField, MarkdownView, Plugin, EditorSelection, Editor } from "obsidian";
+import { MarkdownView, Plugin, EditorSelection, Editor } from "obsidian";
 
 export default class shortcutsExtender extends Plugin {
   async onload() {
@@ -179,6 +179,18 @@ export default class shortcutsExtender extends Plugin {
         },
         {
           modifiers: ["Alt"],
+          key: "`",
+        },
+      ],
+    });
+
+    this.addCommand({
+      id: "shortcut-code-block",
+      name: "Shortcut for toggling a code block",
+      callback: () => this.shortcutToggleCodeBlock(),
+      hotkeys: [
+        {
+          modifiers: ["Ctrl"],
           key: "`",
         },
       ],
@@ -511,6 +523,38 @@ export default class shortcutsExtender extends Plugin {
     if (selectedText) {
       editor.replaceSelection(`\`${selectedText}\``);
     } else editor.replaceSelection(`\``);
+  }
+
+  shortcutToggleCodeBlock(): void {
+    let editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+    if (editor == null) {
+      return;
+    }
+    let selectedText = editor.somethingSelected() ? editor.getSelection() : "";
+    let startCursor = editor.getCursor('from');
+    let firstLine = editor.getLine(startCursor.line);
+    let endCursor = editor.getCursor('to');
+    let lastLine = editor.getLine(endCursor.line);
+
+    // If the selections starts with ```, then we should remove the code block.
+    let isCodeBlock = firstLine.startsWith("```") && lastLine.endsWith("```") 
+                        && selectedText.length >= 6;
+    if (isCodeBlock) {
+      // Position of first non-whitespace
+      let textStartPos = selectedText.search("\\s\\S") + 1;
+      if (textStartPos < 0) {
+        textStartPos = 3;
+      }
+
+      // Remove the code block formatting.
+      let endPos = selectedText.length - 3;
+      let innerText = selectedText.substring(textStartPos, endPos)
+      editor.replaceSelection(innerText)
+    } else {
+      editor.replaceSelection(`\`\`\`\n${selectedText}\n\`\`\``);
+      startCursor.ch = 3; // Move cursor after ```
+      editor.setCursor(startCursor);
+    }
   }
 
   shortcutRightCurlyBracket(): void {
