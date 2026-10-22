@@ -32,6 +32,18 @@ The plugin includes commands for:
 
 This release intentionally avoids shipping most default hotkeys. Assign the commands you want in Obsidian under `Settings -> Hotkeys`.
 
+If you want the hotkeys that version 2.x assigned by default, open `Settings -> Shortcuts extender` and click `Assign default hotkeys`. It assigns:
+- `Alt+1` ... `Alt+7` to `Insert !`, `Insert @`, `Insert #`, `Insert $`, `Insert %`, `Insert ^`, `Insert &`;
+- `Alt+,` / `Alt+б` to `Wrap selection with <>` and `Alt+.` / `Alt+ю` to `Insert >`;
+- `Alt+[` / `Alt+х` to `Insert [ or wrap selection with [[ ]]` and `Alt+]` / `Alt+ъ` to `Insert ]`;
+- `Alt+Shift+{` / `Alt+Shift+х` to `Insert { or wrap selection with {}` and `Alt+Shift+}` / `Alt+Shift+ъ` to `Insert }`;
+- `Alt+Shift+|` / `Alt+Shift+/` to `Insert |`;
+- `` Alt+` `` / `Alt+ё` to the inline code command, `Alt+Shift+~` / `Alt+Shift+ё` to `Insert Python code block`, and ``Ctrl+` `` to `Toggle code block`;
+- `Alt+-` to `Toggle bullet list for selected lines`;
+- `Ctrl+1` ... `Ctrl+6` to Obsidian's own `Set as heading 1` ... `Set as heading 6`, and `Ctrl+0` to `Remove heading`. Version 3.0.0 dropped the plugin's heading commands, because Obsidian has them built in.
+
+Nothing is overwritten. A command that already has a hotkey is skipped, and so is a key combination that another command already uses. On Windows and Linux, Obsidian uses `Ctrl+1` ... `Ctrl+7` for `Go to tab #1` ... `#7` by default, so the heading hotkeys are skipped there until you remove those in `Settings -> Hotkeys` and click the button again. A notice lists what was assigned and what was skipped, and why.
+
 ## Manual installation
 
 1. Open your vault folder.

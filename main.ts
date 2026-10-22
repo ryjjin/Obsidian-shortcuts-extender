@@ -1,4 +1,16 @@
-import { Editor, Plugin } from "obsidian";
+import {
+	App,
+	Command,
+	Editor,
+	Hotkey,
+	Notice,
+	Platform,
+	Plugin,
+	PluginSettingTab,
+	requireApiVersion,
+	Setting,
+	SettingDefinitionItem,
+} from "obsidian";
 
 // Полный диапазон строк, с которым работают многострочные команды.
 //
@@ -29,7 +41,7 @@ type TextCommandDefinition = {
 	name: string;
 	insert: string;
 	wrapWith?: { opening: string; closing: string };
-	hotkeys?: { modifiers: string[]; key: string }[];
+	hotkeys?: Hotkey[];
 };
 
 const SIMPLE_TEXT_COMMANDS: TextCommandDefinition[] = [
@@ -67,10 +79,205 @@ const SIMPLE_TEXT_COMMANDS: TextCommandDefinition[] = [
 	},
 ];
 
+// Hotkeys, которые были назначены по умолчанию в версии 2.x.
+//
+// В 3.0.0 default hotkeys больше не назначаются автоматически, а id команд
+// поменялись. Кнопка в настройках плагина назначает эти сочетания по запросу
+// пользователя. Ключ — id команды плагина (без префикса), либо полный id
+// команды ядра, если 3.0.0 убрал свою команду в пользу встроенной
+// (например, заголовки 1-6 и удаление заголовка).
+const LEGACY_DEFAULT_HOTKEYS: { commandId: string; isCoreCommand?: boolean; hotkeys: Hotkey[] }[] = [
+	{ commandId: "insert-exclamation-mark", hotkeys: [{ modifiers: ["Alt"], key: "1" }] },
+	{ commandId: "insert-at-sign", hotkeys: [{ modifiers: ["Alt"], key: "2" }] },
+	{ commandId: "insert-hash-sign", hotkeys: [{ modifiers: ["Alt"], key: "3" }] },
+	{ commandId: "insert-dollar-sign", hotkeys: [{ modifiers: ["Alt"], key: "4" }] },
+	{ commandId: "insert-percent-sign", hotkeys: [{ modifiers: ["Alt"], key: "5" }] },
+	{ commandId: "insert-caret-sign", hotkeys: [{ modifiers: ["Alt"], key: "6" }] },
+	{ commandId: "insert-ampersand", hotkeys: [{ modifiers: ["Alt"], key: "7" }] },
+	{
+		commandId: "wrap-selection-with-angle-brackets",
+		hotkeys: [
+			{ modifiers: ["Alt"], key: "б" },
+			{ modifiers: ["Alt"], key: "," },
+		],
+	},
+	{
+		commandId: "insert-right-angle-bracket",
+		hotkeys: [
+			{ modifiers: ["Alt"], key: "ю" },
+			{ modifiers: ["Alt"], key: "." },
+		],
+	},
+	{
+		commandId: "insert-or-wrap-double-brackets",
+		hotkeys: [
+			{ modifiers: ["Alt"], key: "х" },
+			{ modifiers: ["Alt"], key: "[" },
+		],
+	},
+	{
+		commandId: "insert-right-square-bracket",
+		hotkeys: [
+			{ modifiers: ["Alt"], key: "ъ" },
+			{ modifiers: ["Alt"], key: "]" },
+		],
+	},
+	{
+		commandId: "insert-python-code-block",
+		hotkeys: [
+			{ modifiers: ["Alt", "Shift"], key: "ё" },
+			{ modifiers: ["Alt", "Shift"], key: "~" },
+		],
+	},
+	{
+		commandId: "insert-inline-code-or-wrap-selection",
+		hotkeys: [
+			{ modifiers: ["Alt"], key: "ё" },
+			{ modifiers: ["Alt"], key: "`" },
+		],
+	},
+	{ commandId: "toggle-code-block", hotkeys: [{ modifiers: ["Ctrl"], key: "`" }] },
+	{
+		commandId: "insert-or-wrap-curly-braces",
+		hotkeys: [
+			{ modifiers: ["Alt", "Shift"], key: "х" },
+			{ modifiers: ["Alt", "Shift"], key: "{" },
+		],
+	},
+	{
+		commandId: "insert-right-curly-bracket",
+		hotkeys: [
+			{ modifiers: ["Alt", "Shift"], key: "ъ" },
+			{ modifiers: ["Alt", "Shift"], key: "}" },
+		],
+	},
+	{
+		commandId: "insert-vertical-line",
+		hotkeys: [
+			{ modifiers: ["Alt", "Shift"], key: "|" },
+			{ modifiers: ["Alt", "Shift"], key: "/" },
+		],
+	},
+	{ commandId: "toggle-bullet-list-for-lines", hotkeys: [{ modifiers: ["Alt"], key: "-" }] },
+	{ commandId: "editor:set-heading-1", isCoreCommand: true, hotkeys: [{ modifiers: ["Ctrl"], key: "1" }] },
+	{ commandId: "editor:set-heading-2", isCoreCommand: true, hotkeys: [{ modifiers: ["Ctrl"], key: "2" }] },
+	{ commandId: "editor:set-heading-3", isCoreCommand: true, hotkeys: [{ modifiers: ["Ctrl"], key: "3" }] },
+	{ commandId: "editor:set-heading-4", isCoreCommand: true, hotkeys: [{ modifiers: ["Ctrl"], key: "4" }] },
+	{ commandId: "editor:set-heading-5", isCoreCommand: true, hotkeys: [{ modifiers: ["Ctrl"], key: "5" }] },
+	{ commandId: "editor:set-heading-6", isCoreCommand: true, hotkeys: [{ modifiers: ["Ctrl"], key: "6" }] },
+	{ commandId: "editor:set-heading-0", isCoreCommand: true, hotkeys: [{ modifiers: ["Ctrl"], key: "0" }] },
+];
+
+// Менеджер hotkeys и реестр команд не входят в публичный API Obsidian,
+// поэтому описываем только то немногое, что используется ниже.
+type HotkeyManager = {
+	customKeys: Record<string, Hotkey[]>;
+	defaultKeys: Record<string, Hotkey[]>;
+	setHotkeys(commandId: string, hotkeys: Hotkey[]): void;
+	save(): Promise<void>;
+};
+
+type AppWithHotkeys = App & {
+	hotkeyManager: HotkeyManager;
+	commands: { commands: Record<string, Command> };
+};
+
 export default class ShortcutsExtenderPlugin extends Plugin {
 	onload(): void {
 		this.registerSimpleTextCommands();
 		this.registerAdvancedCommands();
+		this.addSettingTab(new ShortcutsExtenderSettingTab(this.app, this));
+	}
+
+	// Назначает default hotkeys версии 2.x, ничего не перезаписывая:
+	// - команда, у которой уже есть hotkey (свой или по умолчанию), пропускается;
+	// - сочетание, которое уже занято другой командой, пропускается.
+	// В конце показывает Notice со списком назначенного и пропущенного.
+	async assignLegacyDefaultHotkeys(): Promise<void> {
+		const { hotkeyManager, commands } = this.app as AppWithHotkeys;
+		const getEffectiveHotkeys = (commandId: string): Hotkey[] =>
+			hotkeyManager.customKeys[commandId] ?? hotkeyManager.defaultKeys[commandId] ?? [];
+
+		// Какая команда сейчас занимает каждое сочетание клавиш.
+		const commandIdByHotkey = new Map<string, string>();
+		const boundCommandIds = new Set([
+			...Object.keys(hotkeyManager.defaultKeys),
+			...Object.keys(hotkeyManager.customKeys),
+		]);
+		for (const commandId of boundCommandIds) {
+			for (const hotkey of getEffectiveHotkeys(commandId)) {
+				commandIdByHotkey.set(this.getHotkeyKey(hotkey), commandId);
+			}
+		}
+
+		const assigned: string[] = [];
+		const skipped: string[] = [];
+
+		for (const definition of LEGACY_DEFAULT_HOTKEYS) {
+			const commandId = definition.isCoreCommand
+				? definition.commandId
+				: `${this.manifest.id}:${definition.commandId}`;
+			const command = commands.commands[commandId];
+
+			if (!command) {
+				skipped.push(`${commandId}: command not found`);
+				continue;
+			}
+
+			if (getEffectiveHotkeys(commandId).length > 0) {
+				skipped.push(`${command.name}: already has a hotkey`);
+				continue;
+			}
+
+			const hotkeysToAssign: Hotkey[] = [];
+			for (const hotkey of definition.hotkeys) {
+				const conflictingCommandId = commandIdByHotkey.get(this.getHotkeyKey(hotkey));
+
+				if (conflictingCommandId) {
+					const conflictingName = commands.commands[conflictingCommandId]?.name ?? conflictingCommandId;
+					skipped.push(`${command.name}: ${this.formatHotkey(hotkey)} is used by "${conflictingName}"`);
+					continue;
+				}
+
+				hotkeysToAssign.push(hotkey);
+				commandIdByHotkey.set(this.getHotkeyKey(hotkey), commandId);
+			}
+
+			if (hotkeysToAssign.length > 0) {
+				hotkeyManager.setHotkeys(commandId, hotkeysToAssign);
+				assigned.push(`${command.name}: ${hotkeysToAssign.map((hotkey) => this.formatHotkey(hotkey)).join(", ")}`);
+			}
+		}
+
+		if (assigned.length > 0) {
+			await hotkeyManager.save();
+		}
+
+		new Notice(
+			createFragment((fragment) => {
+				fragment.createDiv({ text: `Assigned ${assigned.length} hotkey(s), skipped ${skipped.length}.` });
+				for (const line of assigned) {
+					fragment.createDiv({ text: `+ ${line}` });
+				}
+				for (const line of skipped) {
+					fragment.createDiv({ text: `- ${line}` });
+				}
+			}),
+			0,
+		);
+	}
+
+	// Нормализованная строка сочетания для сравнения: "Mod" означает Cmd на macOS
+	// и Ctrl на остальных платформах, порядок модификаторов и регистр клавиши не важны.
+	private getHotkeyKey(hotkey: Hotkey): string {
+		const modifiers = hotkey.modifiers
+			.map((modifier) => (modifier === "Mod" ? (Platform.isMacOS ? "Meta" : "Ctrl") : modifier))
+			.sort();
+		return [...modifiers, hotkey.key.toLowerCase()].join("+");
+	}
+
+	private formatHotkey(hotkey: Hotkey): string {
+		return [...hotkey.modifiers, hotkey.key].join("+");
 	}
 
 	private registerSimpleTextCommands(): void {
@@ -365,5 +572,54 @@ export default class ShortcutsExtenderPlugin extends Plugin {
 		const cursor = editor.getCursor();
 		editor.replaceSelection("«»");
 		editor.setCursor({ line: cursor.line, ch: cursor.ch + 1 });
+	}
+}
+
+const ASSIGN_DEFAULT_HOTKEYS_NAME = "Assign default hotkeys";
+const ASSIGN_DEFAULT_HOTKEYS_DESC =
+	"Assigns the hotkeys that version 2.x set by default, such as Alt+1..7 for symbols and Ctrl+0..6 for headings. " +
+	"Commands that already have a hotkey and key combinations already used by another command are skipped.";
+
+class ShortcutsExtenderSettingTab extends PluginSettingTab {
+	constructor(app: App, private readonly plugin: ShortcutsExtenderPlugin) {
+		super(app, plugin);
+	}
+
+	// Obsidian 1.13+ строит вкладку по этим определениям (и индексирует их для поиска
+	// в настройках), а display() при непустом массиве не вызывает.
+	getSettingDefinitions(): SettingDefinitionItem[] {
+		return [
+			{
+				name: ASSIGN_DEFAULT_HOTKEYS_NAME,
+				desc: ASSIGN_DEFAULT_HOTKEYS_DESC,
+				render: (setting) => this.addAssignDefaultHotkeysButton(setting),
+			},
+		];
+	}
+
+	// Начиная с 1.13.0 display() deprecated.
+	display(): void {
+		if (requireApiVersion("1.13.0")) {
+			// 1.13+ строит вкладку по getSettingDefinitions().
+			super.display();
+			return;
+		}
+
+		// Запасной вариант для Obsidian ниже 1.13.0 (minAppVersion плагина — 1.5.0).
+		const { containerEl } = this;
+		containerEl.empty();
+
+		this.addAssignDefaultHotkeysButton(
+			new Setting(containerEl).setName(ASSIGN_DEFAULT_HOTKEYS_NAME).setDesc(ASSIGN_DEFAULT_HOTKEYS_DESC),
+		);
+	}
+
+	private addAssignDefaultHotkeysButton(setting: Setting): void {
+		setting.addButton((button) =>
+			button
+				.setButtonText(ASSIGN_DEFAULT_HOTKEYS_NAME)
+				.setCta()
+				.onClick(() => this.plugin.assignLegacyDefaultHotkeys()),
+		);
 	}
 }
